@@ -145,33 +145,36 @@ def main():
                 continue
 
             
-original_article_url = entry.get("link", "").strip()
 
-if not original_article_url:
-    continue
+            original_article_url = entry.get("link", "").strip()
 
-resolved_article_url = resolve_article_url(original_article_url)
-resolved_domain = domain_of(resolved_article_url)
-resolved_path = urlparse(resolved_article_url).path.strip("/")
+            if not original_article_url:
+                continue
 
-# Use the publisher URL only when it points to a specific event page.
-# Never substitute the publisher homepage for the event link.
-if (
-    resolved_domain
-    and trusted_domain(resolved_domain)
-    and resolved_path
-):
-    article_url = resolved_article_url
-else:
-    # Keep the original Google News article redirect.
-    # It can lead to the individual event listing.
-    article_url = original_article_url
+            resolved_article_url = resolve_article_url(original_article_url)
+            resolved_domain = domain_of(resolved_article_url)
+            resolved_path = urlparse(resolved_article_url).path.strip("/")
 
+            if (
+                resolved_domain
+                and trusted_domain(resolved_domain)
+                and resolved_path
+            ):
+                article_url = resolved_article_url
+            else:
+                article_url = original_article_url
 
-            key = hashlib.sha256((title.lower() + "|" + article_url).encode()).hexdigest()
+            key = hashlib.sha256(
+                (title.lower() + "|" + article_url).encode()
+            ).hexdigest()
+
             if key in seen:
                 continue
-            found.append((key, title, summary, source_name, article_url, published))
+
+            found.append(
+                (key, title, summary, source_name, article_url, published)
+            )
+
 
     # Deduplicate across overlapping search queries.
     unique = {}
