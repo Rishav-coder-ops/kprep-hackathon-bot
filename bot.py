@@ -144,13 +144,29 @@ def main():
             if published and published < cutoff:
                 continue
 
-            article_url = resolve_article_url(entry.get("link", ""))
-            final_domain = domain_of(article_url)
-            # Require the resolved article to remain on an approved publisher domain.
-            if final_domain and not trusted_domain(final_domain):
-                # Google News may not expose a direct publisher URL; keep the original
-                # source listing link only if its declared publisher is trusted.
-                article_url = source_url
+            
+original_article_url = entry.get("link", "").strip()
+
+if not original_article_url:
+    continue
+
+resolved_article_url = resolve_article_url(original_article_url)
+resolved_domain = domain_of(resolved_article_url)
+resolved_path = urlparse(resolved_article_url).path.strip("/")
+
+# Use the publisher URL only when it points to a specific event page.
+# Never substitute the publisher homepage for the event link.
+if (
+    resolved_domain
+    and trusted_domain(resolved_domain)
+    and resolved_path
+):
+    article_url = resolved_article_url
+else:
+    # Keep the original Google News article redirect.
+    # It can lead to the individual event listing.
+    article_url = original_article_url
+
 
             key = hashlib.sha256((title.lower() + "|" + article_url).encode()).hexdigest()
             if key in seen:
