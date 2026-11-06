@@ -106,7 +106,7 @@ def make_embed(title, summary, source, url, published):
             "title": title[:250] or "India hackathon announcement",
             "url": url,
             "description": (summary or "Open the source listing to review event details.")[:900],
-            "color": 0x5865F2,
+            "color": 0x2ECC71,
             "fields": fields,
             "footer": {"text": "K-Prep's Hackathon Bot · Check eligibility, dates and organizer before registering"}
         }],
